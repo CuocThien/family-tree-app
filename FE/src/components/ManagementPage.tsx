@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Popconfirm, message } from 'antd';
+import { Table, Button, Space, Popconfirm, message, Modal, Image } from 'antd';
 import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { FaMale, FaFemale } from 'react-icons/fa';
 import { userService } from '../services/userService';
@@ -78,13 +78,25 @@ const ManagementPage: React.FC = () => {
             key: 'avatar',
             render: (avatar: string, record: FamilyMember) => (
                 avatar ? (
-                    <img
-                        src={avatar}
-                        alt="avatar"
-                        className="w-12 h-12 rounded-full object-cover"
-                    />
+                    <div className="w-12 h-12">
+                        <Image
+                            src={avatar}
+                            alt="avatar"
+                            style={{ 
+                                width: '48px', 
+                                height: '48px', 
+                                borderRadius: '50%',
+                                objectFit: 'cover'
+                            }}
+                            preview={{
+                                mask: null,
+                                maskClassName: "rounded-full",
+                                title: record.name
+                            }}
+                        />
+                    </div>
                 ) : (
-                    <div className="w-12 h-12 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center">
                         {record.gender === 'male' ? (
                             <FaMale className="text-blue-500" size={24} />
                         ) : (
