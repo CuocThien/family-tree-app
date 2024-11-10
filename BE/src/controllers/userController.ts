@@ -17,3 +17,23 @@ export const getUser = async (req: Request, res: Response) => {
     res.status(404).json({ message: 'User not found' });
   }
 };
+
+export const updateUser = async (req: Request, res: Response) => {
+  const user = await userService.updateUser(req.params.id, req.body);
+  res.json(user);
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const success = await userService.deleteUser(req.params.id);
+  res.json({ success });
+};
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  const users = await userService.getAllUsers();
+  res.json(users);
+};
+
+export const getFamilyTree = async (req: Request, res: Response) => {
+  const familyTree = await userService.getFamilyTree();
+  res.json(familyTree);
+};

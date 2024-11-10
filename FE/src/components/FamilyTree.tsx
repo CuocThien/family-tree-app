@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FamilyNode from "./FamilyNode";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import { familyData } from "../familyData";
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import PersonForm from './PersonForm';
+import { useFamilyTree } from "../contexts/FamilyTreeContext";
 
 const FamilyTree: React.FC = () => {
     const [zoom, setZoom] = useState(1);
     const [showAddForm, setShowAddForm] = useState(false);
+    const { familyTreeData, isLoading } = useFamilyTree();
+
+    const handleAddSuccess = () => {
+        setShowAddForm(false);
+    };
 
     const handleZoomIn = () => {
         setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2));
@@ -16,11 +21,6 @@ const FamilyTree: React.FC = () => {
 
     const handleZoomOut = () => {
         setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0.5));
-    };
-
-    const handleCreate = (newMember: any) => {
-        console.log('New member:', newMember);
-        // You'll need to implement a way to add to the family tree data
     };
 
     return (
@@ -49,7 +49,11 @@ const FamilyTree: React.FC = () => {
                         transformOrigin: "top center"
                     }}
                 >
-                    <FamilyNode node={familyData} level={0} zoom={zoom} />
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        familyTreeData && <FamilyNode node={familyTreeData} level={0} zoom={zoom} />
+                    )}
                 </div>
             </div>
             <Button
@@ -63,7 +67,7 @@ const FamilyTree: React.FC = () => {
             <PersonForm
                 visible={showAddForm}
                 onClose={() => setShowAddForm(false)}
-                onSubmit={handleCreate}
+                onSubmit={handleAddSuccess}
             />
         </div>
     );

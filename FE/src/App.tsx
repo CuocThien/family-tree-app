@@ -1,11 +1,12 @@
 import React from "react";
 import FamilyTree from "./components/FamilyTree";
+import { FamilyTreeProvider } from './contexts/FamilyTreeContext';
 
 const App: React.FC = () => {
   return (
-    <div className="app-container items-center justify-center bg-gray-100">
+    <FamilyTreeProvider>
       <FamilyTree />
-    </div>
+    </FamilyTreeProvider>
   );
 };
 

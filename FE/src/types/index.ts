@@ -1,16 +1,19 @@
 export interface FamilyMember {
-    id: number;
+    _id: string;
     name: string;
     gender: "male" | "female";
-    birthYear: number;
-    spouse?: string;
-    spouseData?: FamilyMember;
+    birth_date: string;
+    death_date?: string;
+    spouse_ids: string[];
+    children_ids: string[];
+    spouses?: FamilyMember[];
     children?: FamilyMember[];
 }
 
 export interface DetailCardProps {
     member: FamilyMember;
     onClose: () => void;
+    visible: boolean;
 }
 
 export interface FamilyNodeProps {

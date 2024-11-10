@@ -11,6 +11,22 @@ class UserService {
   async getUser(id: string): Promise<IUser | null> {
     return await this.userRepository.getUserById(id);
   }
+
+  async updateUser(id: string, userData: IUser): Promise<IUser | null> {
+    return await this.userRepository.updateUser(id, userData);
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return await this.userRepository.deleteUser(id);
+  }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return await this.userRepository.getAllUsers();
+  }
+
+  async getFamilyTree(): Promise<any> {
+    return await this.userRepository.getFamilyTree();
+  }
 }
 
 export default UserService;

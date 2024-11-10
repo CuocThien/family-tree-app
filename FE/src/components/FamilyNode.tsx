@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaMale, FaFemale, FaPlus, FaMinus } from "react-icons/fa";
 import DetailCard from "./DetailCard";
 import { FamilyNodeProps } from "../types";
+import dayjs from 'dayjs';
 
 const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -40,7 +41,7 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
             ) : (
               <FaFemale className="text-pink-500" size={nodeSize * 0.5} />
             )}
-            {node.children && (
+            {node.children && node.children.length > 0 && (
               <span
                 className="absolute -bottom-1 -right-1 bg-gray-200 rounded-full p-1"
                 onClick={toggleExpand}
@@ -52,14 +53,16 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
           {showTooltip && (
             <div className="absolute left-full ml-2 p-2 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap z-10">
               <p>Name: {node.name}</p>
-              <p>Birth Year: {node.birthYear}</p>
-              {node.spouse && <p>Spouse: {node.spouse}</p>}
+              <p>Birth Date: {dayjs(node.birth_date).format('YYYY-MM-DD')}</p>
+              {node.spouses && node.spouses.length > 0 && (
+                <p>Spouse: {node.spouses[0].name}</p>
+              )}
             </div>
           )}
         </div>
 
         {/* Spouse Connection and Node */}
-        {node.spouseData && (
+        {node.spouses && node.spouses.length > 0 && (
           <>
             <div
               className="border-t-2 border-gray-300"
@@ -71,7 +74,7 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
                 style={{ width: nodeSize, height: nodeSize }}
                 onClick={() => setShowDetail(true)}
               >
-                {node.spouseData.gender === "male" ? (
+                {node.spouses[0].gender === "male" ? (
                   <FaMale className="text-blue-500" size={nodeSize * 0.5} />
                 ) : (
                   <FaFemale className="text-pink-500" size={nodeSize * 0.5} />
@@ -84,14 +87,14 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
 
       <div className="text-center mt-2 text-sm font-medium">{node.name}</div>
 
-      {node.children && isExpanded && (
+      {node.children && node.children.length > 0 && isExpanded && (
         <div
           className="relative mt-8 flex justify-center"
           style={{ gap: `${spacing}px` }}
         >
           <div className="absolute top-[-20px] w-full border-t-2 border-gray-300"></div>
           {node.children.map((child) => (
-            <div key={child.id} className="relative">
+            <div key={child._id} className="relative">
               <div className="absolute top-[-20px] h-5 border-l-2 border-gray-300 left-1/2"></div>
               <FamilyNode node={child} level={level + 1} zoom={zoom} />
             </div>
@@ -100,7 +103,9 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
       )}
 
       {showDetail && (
-        <DetailCard member={node} onClose={() => setShowDetail(false)} />
+        <div className="relative">
+          <DetailCard member={node} onClose={() => setShowDetail(false)} visible={showDetail} />
+        </div>
       )}
     </div>
   );

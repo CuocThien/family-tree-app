@@ -1,76 +1,124 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, DatePicker, Button, Modal } from 'antd';
+import { Form, Input, Select, DatePicker, Button, Modal, message } from 'antd';
 import { FamilyMember } from '../types';
-import { familyData } from '../familyData';
+import { userService } from '../services/userService';
+import dayjs from 'dayjs';
+import { useFamilyTree } from '../contexts/FamilyTreeContext';
 
 interface PersonFormProps {
   visible: boolean;
   onClose: () => void;
-  initialValues?: FamilyMember;
-  onSubmit: (values: any) => void;
+  userId?: string;
+  onSubmit?: (values: any) => void;
 }
 
 const PersonForm: React.FC<PersonFormProps> = ({
   visible,
   onClose,
-  initialValues,
+  userId,
   onSubmit,
 }) => {
   const [form] = Form.useForm();
-  const [allPeople, setAllPeople] = useState<FamilyMember[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<FamilyMember[]>([]);
+  const { refreshFamilyTree } = useFamilyTree();
 
-  // Flatten family tree to get all people for relationship selection
-  const flattenFamilyTree = (node: FamilyMember): FamilyMember[] => {
-    let result: FamilyMember[] = [node];
-    if (node.spouseData) {
-      result.push(node.spouseData);
+  useEffect(() => {
+    if (visible) {
+      fetchUsers();
+      if (userId) {
+        fetchUserDetails(userId);
+      } else {
+        form.resetFields();
+      }
     }
-    if (node.children) {
-      node.children.forEach(child => {
-        result = result.concat(flattenFamilyTree(child));
-      });
+  }, [visible, userId, form]);
+
+  const fetchUserDetails = async (id: string) => {
+    try {
+      const response = await userService.getUser(id);
+      const user = response;
+      const formattedValues = {
+        name: user.name,
+        gender: user.gender,
+        birth_date: user.birth_date ? dayjs(user.birth_date) : undefined,
+        death_date: user.death_date ? dayjs(user.death_date) : undefined,
+        spouse_ids: user.spouse_ids || [],
+        children_ids: user.children_ids || []
+      };
+      form.setFieldsValue(formattedValues);
+    } catch (error) {
+      message.error('Failed to fetch user details');
+      onClose();
     }
-    return result;
   };
 
-  useEffect(() => {
-    const people = flattenFamilyTree(familyData);
-    setAllPeople(people);
-  }, []);
-
-  useEffect(() => {
-    if (visible && initialValues) {
-      form.setFieldsValue({
-        ...initialValues,
-        birthYear: initialValues.birthYear,
-        spouse: initialValues.spouseData?.id,
-      });
-    } else {
-      form.resetFields();
+  const fetchUsers = async () => {
+    try {
+      const response = await userService.getAllUsers();
+      setUsers(response || []);
+    } catch (error) {
+      message.error('Failed to fetch users');
     }
-  }, [visible, initialValues, form]);
+  };
 
   const handleSubmit = async (values: any) => {
-    const formattedValues = {
-      ...values,
-      id: initialValues?.id || Math.max(...allPeople.map(p => p.id)) + 1,
-      spouseData: values.spouse ? allPeople.find(p => p.id === values.spouse) : undefined,
-    };
-    onSubmit(formattedValues);
-    onClose();
+    try {
+      setLoading(true);
+      const formattedValues = {
+        name: values.name,
+        gender: values.gender,
+        birth_date: values.birth_date?.format('YYYY-MM-DD'),
+        death_date: values.death_date?.format('YYYY-MM-DD'),
+        spouse_ids: values.spouse_ids || [],
+        children_ids: values.children_ids || []
+      };
+
+      if (userId) {
+        await userService.updateUser(userId, formattedValues);
+        message.success('Person updated successfully');
+      } else {
+        await userService.createUser(formattedValues);
+        message.success('Person created successfully');
+      }
+
+      await refreshFamilyTree();
+      onSubmit?.(formattedValues);
+      onClose();
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        error.response.data.errors.forEach((err: any) => {
+          form.setFields([{
+            name: err.field,
+            errors: [err.message]
+          }]);
+        });
+      } else {
+        message.error('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Modal
-      title={initialValues ? 'Edit Person' : 'Add New Person'}
+      title={userId ? 'Edit Person' : 'Add New Person'}
       open={visible}
       onCancel={onClose}
       footer={null}
+      destroyOnClose
+      width={600}
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        preserve={false}
+        initialValues={{
+          spouse_ids: [],
+          children_ids: []
+        }}
       >
         <Form.Item
           name="name"
@@ -92,32 +140,59 @@ const PersonForm: React.FC<PersonFormProps> = ({
         </Form.Item>
 
         <Form.Item
-          name="birthYear"
-          label="Birth Year"
-          rules={[{ required: true, message: 'Please input birth year' }]}
+          name="birth_date"
+          label="Birth Date"
+          rules={[{ required: true, message: 'Please select birth date' }]}
         >
-          <Input type="number" />
+          <DatePicker style={{ width: '100%' }} />
         </Form.Item>
 
         <Form.Item
-          name="spouse"
-          label="Spouse"
+          name="death_date"
+          label="Death Date"
+        >
+          <DatePicker style={{ width: '100%' }} />
+        </Form.Item>
+
+        <Form.Item
+          name="spouse_ids"
+          label="Spouses"
         >
           <Select
-            showSearch
-            allowClear
-            placeholder="Select a spouse"
-            filterOption={(input, option) =>
-              (option?.children as unknown as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+            mode="multiple"
+            placeholder="Select spouses"
+            optionFilterProp="children"
           >
-            {allPeople
-              .filter(person => person.id !== initialValues?.id)
-              .map(person => (
-                <Select.Option key={person.id} value={person.id}>
-                  {person.name} ({person.birthYear})
-                </Select.Option>
-              ))}
+            {users.map(user => (
+              <Select.Option 
+                key={user._id} 
+                value={user._id}
+                disabled={user._id === userId}
+              >
+                {user.name} (Born: {dayjs(user.birth_date).format('YYYY-MM-DD')})
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="children_ids"
+          label="Children"
+        >
+          <Select
+            mode="multiple"
+            placeholder="Select children"
+            optionFilterProp="children"
+          >
+            {users.map(user => (
+              <Select.Option 
+                key={user._id} 
+                value={user._id}
+                disabled={user._id === userId}
+              >
+                {user.name} (Born: {dayjs(user.birth_date).format('YYYY-MM-DD')})
+              </Select.Option>
+            ))}
           </Select>
         </Form.Item>
 
@@ -125,8 +200,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
           <Button type="default" onClick={onClose} className="mr-2">
             Cancel
           </Button>
-          <Button type="primary" htmlType="submit">
-            {initialValues ? 'Update' : 'Create'}
+          <Button type="primary" htmlType="submit" loading={loading}>
+            {userId ? 'Update' : 'Create'}
           </Button>
         </Form.Item>
       </Form>
