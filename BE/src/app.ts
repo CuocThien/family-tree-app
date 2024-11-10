@@ -5,6 +5,8 @@ import { responseMiddleware } from './middleware/response.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
 import { logger } from './config/logger.config';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
