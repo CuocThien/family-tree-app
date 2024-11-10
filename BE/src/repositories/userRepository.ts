@@ -18,7 +18,7 @@ class UserRepository implements IUserRepository {
   }
 
   async updateUser(id: string, user: IUser): Promise<IUser | null> {
-    const existedUser = await User.findById(id).lean();
+    const existedUser = await User.findOne({ _id: id, is_deleted: false }).lean();
     if (!existedUser) {
       throw new Error('User not found');
     }
@@ -41,13 +41,23 @@ class UserRepository implements IUserRepository {
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await User.findByIdAndDelete(id);
-    return result !== null;
+    const existedUser = await User.findOne({ _id: id, is_deleted: false }).lean();
+    if (!existedUser) {
+      throw new Error('User not found');
+    }
+    await Promise.all([
+      User.updateOne({ _id: id }, { is_deleted: true }),
+      User.updateMany({ _id: { $in: existedUser.spouse_ids } }, { $pull: { spouse_ids: id } }),
+      User.updateMany({ children_ids: id }, { $pull: { children_ids: id } })
+    ]);
+    return true;
   }
 
   async getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }> {
     const { search_text, skip = 0, limit = 10 } = params;  
-    const query: any = {};
+    const query: any = {
+      is_deleted: false
+    };
     if (search_text) {
       query.name = { $regex: search_text, $options: 'i' };
     }

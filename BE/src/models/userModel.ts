@@ -10,6 +10,7 @@ export interface IUser extends Document {
   children_ids: mongoose.Types.ObjectId[];
   spouses: IUser[];
   children: IUser[];
+  is_deleted: boolean;
 }
 
 const userSchema = new Schema<IUser>({
@@ -33,6 +34,10 @@ const userSchema = new Schema<IUser>({
   death_date: {
     type: Date,
     required: false
+  },
+  is_deleted: {
+    type: Boolean,
+    default: false
   },
   spouse_ids: [{
     type: Schema.Types.ObjectId,
