@@ -123,7 +123,13 @@ const ManagementPage: React.FC = () => {
             title: t('user.birthDate'),
             dataIndex: 'birth_date',
             key: 'birth_date',
-            render: (date: string) => dayjs(date).format('YYYY-MM-DD')
+            render: (date: string) => dayjs(date).format('DD/MM/YYYY')
+        },
+        {
+            title: t('user.deathDate'),
+            dataIndex: 'death_date',
+            key: 'death_date',
+            render: (date: string) => dayjs(date).format('DD/MM/YYYY')
         },
         {
             title: 'Actions',

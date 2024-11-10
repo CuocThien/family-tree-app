@@ -13,8 +13,8 @@ class UserRepository implements IUserRepository {
     return newUser;
   }
 
-  async getUserById(id: string): Promise<IUser | null> {
-    return await User.findById(id);
+  async getUserById(id: string): Promise<any | null> {
+    return await User.findById(id).populate('spouses').populate('children').lean();
   }
 
   async updateUser(id: string, user: IUser): Promise<IUser | null> {
@@ -26,16 +26,18 @@ class UserRepository implements IUserRepository {
     if (!updatedUser) {
       throw new Error('Failed to update user');
     }
+    const promises = [];
+    if (existedUser.spouse_ids.length > 0 && !user.spouse_ids.length) {
+      promises.push(User.updateMany({ _id: { $in: existedUser.spouse_ids } }, { $pull: { spouse_ids: id } }));
+    }
     if (user.spouse_ids.some((spouseId) => !existedUser.spouse_ids.includes(spouseId))) {
-      await Promise.all([
-        User.updateMany({ _id: existedUser._id }, { $pull: { spouse_ids: id } }),
-        User.updateMany({ _id: { $in: user.spouse_ids } }, { $addToSet: { spouse_ids: id } })
-      ]);
+      promises.push(User.updateMany({ _id: { $in: user.spouse_ids } }, { $addToSet: { spouse_ids: id } }));
     }
     const isChangeChildren = user.children_ids.length !== existedUser.children_ids.length || !user.children_ids.every((childId) => existedUser.children_ids.includes(childId));
     if (isChangeChildren) {
-      await User.updateMany({ _id: { $in: user.spouse_ids } }, { children_ids: user.children_ids } );
-    } 
+      promises.push(User.updateMany({ _id: { $in: user.spouse_ids } }, { children_ids: user.children_ids }));
+    }
+    await Promise.all(promises);
 
     return updatedUser;
   }
@@ -54,7 +56,7 @@ class UserRepository implements IUserRepository {
   }
 
   async getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }> {
-    const { search_text, skip = 0, limit = 10 } = params;  
+    const { search_text, skip = 0, limit = 10 } = params;
     const query: any = {
       is_deleted: false
     };
@@ -69,7 +71,16 @@ class UserRepository implements IUserRepository {
   }
 
   async getFamilyTree(): Promise<any | null> {
-    return await User.findById(process.env.ROOT_USER_ID).populate(['spouses', 'children']).lean();
+    return await User.findById(process.env.ROOT_USER_ID).populate([
+      {
+        path: 'spouses',
+        populate: ['spouses', 'children']
+      },
+      {
+        path: 'children',
+        populate: ['spouses', 'children']
+      }
+    ]).lean();
   }
 }
 

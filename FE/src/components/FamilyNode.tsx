@@ -3,14 +3,37 @@ import { FaMale, FaFemale, FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import DetailCard from "./DetailCard";
 import { FamilyNodeProps } from "../types";
 import dayjs from 'dayjs';
+import { useTranslation } from "react-i18next"; 
 
 const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const { t } = useTranslation();
 
   const nodeSize = 40 * zoom;
   const spacing = 120 * zoom;
+
+  const handleNodeClick = (person: any) => {
+    setSelectedMember(person);
+  };
+
+  const renderTooltip = (person: any) => {
+    if (!hoveredNode || hoveredNode !== person._id) return null;
+    
+    return (
+      <div className="absolute left-full ml-2 p-2 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap z-50">
+        <p>{t('user.name')}: {person.name}</p>
+        <p>{t('user.birthDate')}: {dayjs(person.birth_date).format('DD/MM/YYYY')}</p>
+        {person.death_date && (
+          <p>{t('user.deathDate')}: {dayjs(person.death_date).format('DD/MM/YYYY')}</p>
+        )}
+        {person.spouses && person.spouses.length > 0 && (
+          <p>{t('user.form.spouse')}: {person.spouses[0].name}</p>
+        )}
+      </div>
+    );
+  };
 
   const renderNodeContent = (person: any) => {
     if (person.avatar) {
@@ -38,9 +61,9 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
       <div
         className="relative flex items-center justify-center rounded-full bg-white border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110 overflow-hidden"
         style={{ width: nodeSize, height: nodeSize }}
-        onMouseEnter={() => isMainNode && setShowTooltip(true)}
-        onMouseLeave={() => isMainNode && setShowTooltip(false)}
-        onClick={() => setShowDetail(true)}
+        onMouseEnter={() => setHoveredNode(person._id)}
+        onMouseLeave={() => setHoveredNode(null)}
+        onClick={() => handleNodeClick(person)}
         role="button"
         aria-label={`Family member: ${person.name}`}
         tabIndex={0}
@@ -48,6 +71,7 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
         {renderNodeContent(person)}
       </div>
       <div className="text-center mt-2 text-sm font-medium">{person.name}</div>
+      {renderTooltip(person)}
       {isMainNode && person.children && person.children.length > 0 && (
         <button
           className="absolute bottom-7 -right-1 bg-gray-200 hover:bg-gray-300 rounded-full p-1 z-50 transition-colors"
@@ -65,21 +89,10 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
   return (
     <div className="flex flex-col items-center">
       <div className="relative flex items-center">
-        {/* Main Node */}
         <div className="relative">
           {renderNode(node, true)}
-          {showTooltip && (
-            <div className="absolute left-full ml-2 p-2 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap z-50">
-              <p>Name: {node.name}</p>
-              <p>Birth Date: {dayjs(node.birth_date).format('YYYY-MM-DD')}</p>
-              {node.spouses && node.spouses.length > 0 && (
-                <p>Spouse: {node.spouses[0].name}</p>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Spouse Connection and Node */}
         {node.spouses && node.spouses.length > 0 && (
           <>
             <div
@@ -108,11 +121,11 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
         </div>
       )}
 
-      {showDetail && (
+      {selectedMember && (
         <DetailCard 
-          member={node} 
-          onClose={() => setShowDetail(false)} 
-          visible={showDetail} 
+          member={selectedMember} 
+          onClose={() => setSelectedMember(null)} 
+          visible={!!selectedMember} 
         />
       )}
     </div>
