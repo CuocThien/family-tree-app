@@ -5,8 +5,12 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "nodemon",
+    "prebuild": "rm -rf dist",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "prestart": "npm install",
+    "start": "node dist/server.js",
+    "predeploy": "npm install",
+    "deploy": "npm run build && pm2 start ecosystem.config.js"
   },
   "author": "",
   "license": "ISC",
