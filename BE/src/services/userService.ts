@@ -1,4 +1,4 @@
-import { IUserRepository } from '../interfaces/userRepository';
+import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository';
 import { IUser } from '../models/userModel';
 
 class UserService {
@@ -20,8 +20,8 @@ class UserService {
     return await this.userRepository.deleteUser(id);
   }
 
-  async getAllUsers(): Promise<IUser[]> {
-    return await this.userRepository.getAllUsers();
+  async getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }> {
+    return await this.userRepository.getAllUsers(params);
   }
 
   async getFamilyTree(): Promise<any> {

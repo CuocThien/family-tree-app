@@ -29,8 +29,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 export const getAllUsers = async (req: Request, res: Response) => {
-  const users = await userService.getAllUsers();
-  res.json(users);
+  const result = await userService.getAllUsers(req.query);
+  res.json(result);
 };
 
 export const getFamilyTree = async (req: Request, res: Response) => {

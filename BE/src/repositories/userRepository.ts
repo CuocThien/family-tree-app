@@ -1,4 +1,4 @@
-import { IUserRepository } from '../interfaces/userRepository';
+import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository';
 import User, { IUser } from '../models/userModel';
 
 class UserRepository implements IUserRepository {
@@ -45,8 +45,17 @@ class UserRepository implements IUserRepository {
     return result !== null;
   }
 
-  async getAllUsers(): Promise<IUser[]> {
-    return await User.find();
+  async getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }> {
+    const { search_text, skip = 0, limit = 10 } = params;  
+    const query: any = {};
+    if (search_text) {
+      query.name = { $regex: search_text, $options: 'i' };
+    }
+    const [users, total] = await Promise.all([
+      User.find(query).skip(skip).limit(limit),
+      User.countDocuments(query)
+    ]);
+    return { items: users, total };
   }
 
   async getFamilyTree(): Promise<any | null> {

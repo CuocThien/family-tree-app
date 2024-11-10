@@ -8,6 +8,10 @@ export const StringProperty = {
   minLength: 1
 };
 
+export const StringOptionalProperty = {
+  type: 'string'
+};
+
 export const ArrayStringProperty = {
   type: 'array',
   items: StringProperty,
@@ -16,7 +20,12 @@ export const ArrayStringProperty = {
 
 export const NumberPositiveProperty = {
   type: 'number',
-  min: 1
+  minimum: 1
+};
+
+export const NumberPositiveOrZeroProperty = {
+  type: 'number',
+  minimum: 0
 };
 
 export const NumberProperty = { type: 'number' };

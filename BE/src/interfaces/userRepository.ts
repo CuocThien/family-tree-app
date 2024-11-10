@@ -5,6 +5,12 @@ export interface IUserRepository {
   getUserById(id: string): Promise<IUser | null>;
   updateUser(id: string, user: IUser): Promise<IUser | null>;
   deleteUser(id: string): Promise<boolean>;
-  getAllUsers(): Promise<IUser[]>;
+  getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }>;
   getFamilyTree(): Promise<IUser | null>;
 }
+
+export type GetAllUsersParams = {
+  search_text?: string;
+  skip?: number;
+  limit?: number;
+};

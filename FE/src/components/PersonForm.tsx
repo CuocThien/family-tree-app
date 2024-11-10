@@ -7,7 +7,8 @@ import { useFamilyTree } from '../contexts/FamilyTreeContext';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import type { RcFile, UploadChangeParam } from 'antd/es/upload/interface';
 import type { UploadFile } from 'antd/es/upload/interface';
-
+import { GetAllUsersParams } from '../types/user.interface';
+import _ from 'lodash';
 interface PersonFormProps {
   visible: boolean;
   onClose: () => void;
@@ -26,11 +27,12 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const [imageUrl, setImageUrl] = useState<string>();
   const [uploadLoading, setUploadLoading] = useState(false);
   const [users, setUsers] = useState<FamilyMember[]>([]);
+  const [detailUser, setDetailUser] = useState<FamilyMember>();
   const { refreshFamilyTree } = useFamilyTree();
 
   useEffect(() => {
     if (visible) {
-      fetchUsers();
+      fetchUsers({});
       if (userId) {
         fetchUserDetails(userId);
       } else {
@@ -44,6 +46,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
     try {
       const response = await userService.getUser(id);
       const user = response;
+      setDetailUser(user);
       const formattedValues = {
         name: user.name,
         gender: user.gender,
@@ -56,14 +59,15 @@ const PersonForm: React.FC<PersonFormProps> = ({
       form.setFieldsValue(formattedValues);
     } catch (error) {
       message.error('Failed to fetch user details');
+      setDetailUser(undefined);
       onClose();
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (params: GetAllUsersParams) => {
     try {
-      const response = await userService.getAllUsers();
-      setUsers(response || []);
+      const response = await userService.getAllUsers(params);
+      setUsers(response.items || []);
     } catch (error) {
       message.error('Failed to fetch users');
     }
@@ -233,7 +237,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
               <Select.Option 
                 key={user._id} 
                 value={user._id}
-                disabled={user._id === userId}
+                disabled={_.concat(detailUser?.children_ids || [], [userId]).includes(user._id)}
               >
                 {user.name} (Born: {dayjs(user.birth_date).format('YYYY-MM-DD')})
               </Select.Option>
@@ -254,7 +258,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
               <Select.Option 
                 key={user._id} 
                 value={user._id}
-                disabled={user._id === userId}
+                disabled={_.concat(detailUser?.spouse_ids || [], [userId]).includes(user._id)}
               >
                 {user.name} (Born: {dayjs(user.birth_date).format('YYYY-MM-DD')})
               </Select.Option>

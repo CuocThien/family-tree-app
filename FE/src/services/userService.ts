@@ -1,9 +1,10 @@
 import api from '../config/axios.config';
 import { ENDPOINTS } from '../config/api.config';
+import { GetAllUsersParams } from '../types/user.interface';
 
 export const userService = {
-    getAllUsers: async () => {
-        const response = await api.get(ENDPOINTS.USERS);
+    getAllUsers: async (params: GetAllUsersParams) => {
+        const response = await api.get(ENDPOINTS.USERS, { params });
         return response.data?.data;
     },
 
@@ -24,6 +25,11 @@ export const userService = {
 
     getFamilyTree: async () => {
         const response = await api.get(`${ENDPOINTS.USERS}/family-tree`);
+        return response.data?.data;
+    },
+
+    deleteUser: async (id: string) => {
+        const response = await api.delete(`${ENDPOINTS.USERS}/${id}`);
         return response.data?.data;
     }
 }; 
