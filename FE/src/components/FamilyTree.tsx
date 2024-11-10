@@ -5,12 +5,13 @@ import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import PersonForm from './PersonForm';
 import { useFamilyTree } from "../contexts/FamilyTreeContext";
+import { useTranslation } from 'react-i18next';
 
 const FamilyTree: React.FC = () => {
     const [zoom, setZoom] = useState(1);
     const [showAddForm, setShowAddForm] = useState(false);
     const { familyTreeData, isLoading } = useFamilyTree();
-
+    const { t } = useTranslation();
     const handleAddSuccess = () => {
         setShowAddForm(false);
     };
@@ -62,7 +63,7 @@ const FamilyTree: React.FC = () => {
                 onClick={() => setShowAddForm(true)}
                 className="fixed top-4 left-4"
             >
-                Add Person
+                {t('user.addUser')}
             </Button>
             <PersonForm
                 visible={showAddForm}

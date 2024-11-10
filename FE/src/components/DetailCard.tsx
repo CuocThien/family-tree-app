@@ -5,11 +5,11 @@ import { DetailCardProps } from "../types";
 import PersonForm from "./PersonForm";
 import dayjs from 'dayjs';
 import { useFamilyTree } from "../contexts/FamilyTreeContext";
-
+import { useTranslation } from "react-i18next";
 const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => {
   const [showEditForm, setShowEditForm] = useState(false);
   const { refreshFamilyTree } = useFamilyTree();
-
+  const { t } = useTranslation();
   const formatDate = (dateString: string) => {
     return dayjs(dateString).format('MMMM D, YYYY');
   };
@@ -34,14 +34,14 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
               icon={<FaEdit />}
               onClick={() => setShowEditForm(true)}
             >
-              Edit
+              {t('common.edit')}
             </Button>
             <Button
               type="default"
               icon={<FaTimes />}
               onClick={onClose}
             >
-              Close
+              {t('common.close')}
             </Button>
           </div>
         )}
@@ -50,23 +50,23 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
       >
         <div className="space-y-4">
           <p className="text-gray-700">
-            <span className="font-semibold">Gender:</span> {member.gender}
+            <span className="font-semibold">{t('user.gender')}:</span> {member.gender === 'male' ? t('user.male') : t('user.female')}
           </p>
           <p className="text-gray-700">
-            <span className="font-semibold">Birth Date:</span> {formatDate(member.birth_date)}
+            <span className="font-semibold">{t('user.birthDate')}:</span> {formatDate(member.birth_date)}
           </p>
           {member.death_date && (
             <p className="text-gray-700">
-              <span className="font-semibold">Death Date:</span> {formatDate(member.death_date)}
+              <span className="font-semibold">{t('user.deathDate')}:</span> {formatDate(member.death_date)}
             </p>
           )}
           {member.spouses && member.spouses.length > 0 && (
             <div>
-              <p className="font-semibold text-gray-700 mb-2">Spouses:</p>
+              <p className="font-semibold text-gray-700 mb-2">{t('user.form.spouse')}:</p>
               <ul className="list-disc list-inside">
                 {member.spouses.map((spouse) => (
                   <li key={spouse._id} className="text-gray-700">
-                    {spouse.name} (Born: {formatDate(spouse.birth_date)})
+                    {spouse.name} ({t('user.born')}: {formatDate(spouse.birth_date)})
                   </li>
                 ))}
               </ul>
@@ -74,11 +74,11 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
           )}
           {member.children && member.children.length > 0 && (
             <div>
-              <p className="font-semibold text-gray-700 mb-2">Children:</p>
+              <p className="font-semibold text-gray-700 mb-2">{t('user.form.children')}:</p>
               <ul className="list-disc list-inside">
                 {member.children.map((child) => (
                   <li key={child._id} className="text-gray-700">
-                    {child.name} (Born: {formatDate(child.birth_date)})
+                    {child.name} ({t('user.born')}: {formatDate(child.birth_date)})
                   </li>
                 ))}
               </ul>

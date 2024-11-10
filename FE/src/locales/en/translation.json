@@ -1,0 +1,38 @@
+{
+  "common": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "search": "Search",
+    "upload": "Upload",
+    "close": "Close"
+  },
+  "user": {
+    "management": "User Management",
+    "searchPlaceholder": "Search by name...",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "deleteConfirm": "Are you sure you want to delete this user?",
+    "name": "Name",
+    "gender": "Gender",
+    "birthDate": "Birth Date",
+    "deathDate": "Death Date",
+    "male": "Male",
+    "female": "Female",
+    "born": "Born",
+    "form": {
+      "avatar": "Image",
+      "spouse": "Spouse",
+      "selectSpouse": "Select spouse...",
+      "children": "Children",
+      "selectChildren": "Select children..."
+    }
+  },
+  "nav": {
+    "familyTree": "Family Tree",
+    "management": "Management"
+  }
+} 

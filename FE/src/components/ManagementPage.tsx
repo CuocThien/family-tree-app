@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import Search from 'antd/es/input/Search';
 import { debounce } from 'lodash';
 import { GetAllUsersParams } from '../types/user.interface';
+import { useTranslation } from 'react-i18next';
 
 const PAGE_SIZE = 10;
 
@@ -23,6 +24,7 @@ const ManagementPage: React.FC = () => {
         pageSize: PAGE_SIZE,
         total: 0
     });
+    const { t } = useTranslation();
 
     const fetchUsers = async (params: GetAllUsersParams) => {
         setLoading(true);
@@ -107,17 +109,18 @@ const ManagementPage: React.FC = () => {
             )
         },
         {
-            title: 'Name',
+            title: t('user.name'),
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Gender',
+            title: t('user.gender'),
             dataIndex: 'gender',
             key: 'gender',
+            render: (gender: string) => gender === 'male' ? t('user.male') : t('user.female')
         },
         {
-            title: 'Birth Date',
+            title: t('user.birthDate'),
             dataIndex: 'birth_date',
             key: 'birth_date',
             render: (date: string) => dayjs(date).format('YYYY-MM-DD')
@@ -135,7 +138,7 @@ const ManagementPage: React.FC = () => {
                         }}
                     />
                     <Popconfirm
-                        title="Are you sure to delete this user?"
+                        title={t('user.deleteConfirm')}
                         onConfirm={() => handleDelete(record._id)}
                         okText="Yes"
                         cancelText="No"
@@ -150,15 +153,15 @@ const ManagementPage: React.FC = () => {
     return (
         <div className="p-6">
             <div className="flex justify-between mb-4">
-                <h1 className="text-2xl font-bold">User Management</h1>
+                <h1 className="text-2xl font-bold">{t('user.management')}</h1>
                 <Button type="primary" onClick={() => setShowForm(true)}>
-                    Add User
+                    {t('user.addUser')}
                 </Button>
             </div>
 
             <div className="mb-4">
                 <Search
-                    placeholder="Search by name..."
+                    placeholder={t('user.searchPlaceholder')}
                     allowClear
                     enterButton={<SearchOutlined />}
                     size="large"

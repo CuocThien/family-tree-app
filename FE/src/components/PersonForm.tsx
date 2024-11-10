@@ -9,6 +9,7 @@ import type { RcFile, UploadChangeParam } from 'antd/es/upload/interface';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { GetAllUsersParams } from '../types/user.interface';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 interface PersonFormProps {
   visible: boolean;
   onClose: () => void;
@@ -29,6 +30,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const [users, setUsers] = useState<FamilyMember[]>([]);
   const [detailUser, setDetailUser] = useState<FamilyMember>();
   const { refreshFamilyTree } = useFamilyTree();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (visible) {
@@ -149,13 +151,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const uploadButton = (
     <div>
       {uploadLoading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>{t('common.upload')}</div>
     </div>
   );
 
   return (
     <Modal
-      title={userId ? 'Edit Person' : 'Add New Person'}
+      title={userId ? t('user.editUser') : t('user.addUser')}
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -172,7 +174,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
           children_ids: []
         }}
       >
-        <Form.Item label="Avatar">
+        <Form.Item label={t('user.form.avatar')}>
           <Upload
             name="avatar"
             listType="picture-card"
@@ -192,7 +194,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item
           name="name"
-          label="Name"
+          label={t('user.name')}
           rules={[{ required: true, message: 'Please input the name' }]}
         >
           <Input />
@@ -200,7 +202,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item
           name="gender"
-          label="Gender"
+          label={t('user.gender')}
           rules={[{ required: true, message: 'Please select gender' }]}
         >
           <Select>
@@ -211,7 +213,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item
           name="birth_date"
-          label="Birth Date"
+          label={t('user.birthDate')}
           rules={[{ required: true, message: 'Please select birth date' }]}
         >
           <DatePicker style={{ width: '100%' }} />
@@ -219,18 +221,18 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item
           name="death_date"
-          label="Death Date"
+          label={t('user.deathDate')}
         >
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
 
         <Form.Item
           name="spouse_ids"
-          label="Spouses"
+          label={t('user.form.spouse')}
         >
           <Select
             mode="multiple"
-            placeholder="Select spouses"
+            placeholder={t('user.form.selectSpouse')}
             optionFilterProp="children"
           >
             {users.map(user => (
@@ -247,11 +249,11 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item
           name="children_ids"
-          label="Children"
+          label={t('user.form.children')}
         >
           <Select
             mode="multiple"
-            placeholder="Select children"
+            placeholder={t('user.form.selectChildren')}
             optionFilterProp="children"
           >
             {users.map(user => (
@@ -268,10 +270,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
         <Form.Item className="flex justify-end">
           <Button type="default" onClick={onClose} className="mr-2">
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="primary" htmlType="submit" loading={loading}>
-            {userId ? 'Update' : 'Create'}
+            {userId ? t('user.editUser') : t('user.addUser')}
           </Button>
         </Form.Item>
       </Form>

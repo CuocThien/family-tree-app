@@ -1,0 +1,38 @@
+{
+  "common": {
+    "add": "Thêm",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "confirm": "Xác nhận",
+    "search": "Tìm kiếm",
+    "upload": "Tải lên",
+    "close": "Đóng"
+  },
+  "user": {
+    "management": "Quản lý gia phả",
+    "searchPlaceholder": "Tìm kiếm theo tên...",
+    "addUser": "Thêm thông tin",
+    "editUser": "Sửa thông tin",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa người này?",
+    "name": "Tên",
+    "gender": "Giới tính",
+    "birthDate": "Ngày sinh",
+    "deathDate": "Ngày mất",
+    "male": "Nam",
+    "female": "Nữ",
+    "born": "Sinh năm",
+    "form": {
+      "avatar": "Ảnh",
+      "spouse": "Chồng/Vợ",
+      "selectSpouse": "Chọn chồng/vợ...",
+      "children": "Con",
+      "selectChildren": "Chọn con..."
+    }
+  },
+  "nav": {
+    "familyTree": "Cây gia phả",
+    "management": "Quản lý"
+  }
+} 

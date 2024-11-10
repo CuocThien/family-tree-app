@@ -3,6 +3,8 @@ import FamilyTree from './components/FamilyTree';
 import ManagementPage from './components/ManagementPage';
 import FloatingNav from './components/FloatingNav';
 import { FamilyTreeProvider } from './contexts/FamilyTreeContext';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import './i18n';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'tree' | 'management'>('tree');
@@ -15,6 +17,7 @@ const App: React.FC = () => {
           currentView={currentView}
           onSwitchView={setCurrentView}
         />
+        <LanguageSwitcher />
       </div>
     </FamilyTreeProvider>
   );
