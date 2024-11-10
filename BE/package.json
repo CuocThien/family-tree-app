@@ -18,7 +18,8 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.8.1",
     "nodemon": "^3.1.7",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
