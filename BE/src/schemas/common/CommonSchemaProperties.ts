@@ -38,3 +38,8 @@ export const ObjectIdArrayProperty = {
   items: ObjectIdPattern,
   uniqueItems: true
 };
+
+export const Base64ImageProperty = {
+  type: 'string',
+  pattern: '^data:image\/(jpeg|png|gif);base64,'
+};

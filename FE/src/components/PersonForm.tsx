@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, DatePicker, Button, Modal, message } from 'antd';
+import { Form, Input, Select, DatePicker, Button, Modal, message, Upload } from 'antd';
 import { FamilyMember } from '../types';
 import { userService } from '../services/userService';
 import dayjs from 'dayjs';
 import { useFamilyTree } from '../contexts/FamilyTreeContext';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import type { RcFile, UploadChangeParam } from 'antd/es/upload/interface';
+import type { UploadFile } from 'antd/es/upload/interface';
 
 interface PersonFormProps {
   visible: boolean;
@@ -20,6 +23,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
+  const [uploadLoading, setUploadLoading] = useState(false);
   const [users, setUsers] = useState<FamilyMember[]>([]);
   const { refreshFamilyTree } = useFamilyTree();
 
@@ -30,6 +35,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
         fetchUserDetails(userId);
       } else {
         form.resetFields();
+        setImageUrl(undefined);
       }
     }
   }, [visible, userId, form]);
@@ -46,6 +52,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
         spouse_ids: user.spouse_ids || [],
         children_ids: user.children_ids || []
       };
+      setImageUrl(user.avatar);
       form.setFieldsValue(formattedValues);
     } catch (error) {
       message.error('Failed to fetch user details');
@@ -62,6 +69,39 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
   };
 
+  const getBase64 = (img: RcFile): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => resolve(reader.result as string));
+      reader.addEventListener('error', (error) => reject(error));
+      reader.readAsDataURL(img);
+    });
+  };
+
+  const beforeUpload = (file: RcFile) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  };
+
+  const handleChange = async (info: UploadChangeParam<UploadFile>) => {
+    if (info.file.status === 'uploading') {
+      setUploadLoading(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      const base64Url = await getBase64(info.file.originFileObj as RcFile);
+      setImageUrl(base64Url);
+      setUploadLoading(false);
+    }
+  };
+
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
@@ -71,7 +111,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
         birth_date: values.birth_date?.format('YYYY-MM-DD'),
         death_date: values.death_date?.format('YYYY-MM-DD'),
         spouse_ids: values.spouse_ids || [],
-        children_ids: values.children_ids || []
+        children_ids: values.children_ids || [],
+        avatar: imageUrl
       };
 
       if (userId) {
@@ -101,6 +142,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
   };
 
+  const uploadButton = (
+    <div>
+      {uploadLoading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
   return (
     <Modal
       title={userId ? 'Edit Person' : 'Add New Person'}
@@ -120,6 +168,24 @@ const PersonForm: React.FC<PersonFormProps> = ({
           children_ids: []
         }}
       >
+        <Form.Item label="Avatar">
+          <Upload
+            name="avatar"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            beforeUpload={beforeUpload}
+            onChange={handleChange}
+            customRequest={({ onSuccess }) => onSuccess?.('ok')}
+          >
+            {imageUrl ? (
+              <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
+            ) : (
+              uploadButton
+            )}
+          </Upload>
+        </Form.Item>
+
         <Form.Item
           name="name"
           label="Name"

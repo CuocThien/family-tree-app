@@ -5,6 +5,7 @@ export interface IUser extends Document {
   gender: 'male' | 'female';
   birth_date: Date;
   death_date: Date;
+  avatar: string;
   spouse_ids: mongoose.Types.ObjectId[];
   children_ids: mongoose.Types.ObjectId[];
   spouses: IUser[];
@@ -15,6 +16,10 @@ const userSchema = new Schema<IUser>({
   name: {
     type: String,
     required: true
+  },
+  avatar: {
+    type: String,
+    required: false
   },
   gender: {
     type: String,

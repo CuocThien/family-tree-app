@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaMale, FaFemale, FaPlus, FaMinus } from "react-icons/fa";
+import { FaMale, FaFemale, FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import DetailCard from "./DetailCard";
 import { FamilyNodeProps } from "../types";
 import dayjs from 'dayjs';
@@ -9,49 +9,67 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
-  const toggleExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsExpanded(!isExpanded);
-  };
-
-  const handleNodeClick = () => {
-    setShowDetail(true);
-  };
-
   const nodeSize = 40 * zoom;
   const spacing = 120 * zoom;
+
+  const renderNodeContent = (person: any) => {
+    if (person.avatar) {
+      return (
+        <div 
+          className="w-full h-full rounded-full bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url(${person.avatar})`,
+            width: nodeSize,
+            height: nodeSize
+          }}
+        />
+      );
+    }
+
+    return person.gender === "male" ? (
+      <FaMale className="text-blue-500" size={nodeSize * 0.5} />
+    ) : (
+      <FaFemale className="text-pink-500" size={nodeSize * 0.5} />
+    );
+  };
+
+  const renderNode = (person: any, isMainNode: boolean = false) => (
+    <div className="flex flex-col items-center relative">
+      <div
+        className="relative flex items-center justify-center rounded-full bg-white border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110 overflow-hidden"
+        style={{ width: nodeSize, height: nodeSize }}
+        onMouseEnter={() => isMainNode && setShowTooltip(true)}
+        onMouseLeave={() => isMainNode && setShowTooltip(false)}
+        onClick={() => setShowDetail(true)}
+        role="button"
+        aria-label={`Family member: ${person.name}`}
+        tabIndex={0}
+      >
+        {renderNodeContent(person)}
+      </div>
+      <div className="text-center mt-2 text-sm font-medium">{person.name}</div>
+      {isMainNode && person.children && person.children.length > 0 && (
+        <button
+          className="absolute bottom-7 -right-1 bg-gray-200 hover:bg-gray-300 rounded-full p-1 z-50 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+        >
+          {isExpanded ? <FaMinus size={12} /> : <FaPlus size={12} />}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex flex-col items-center">
       <div className="relative flex items-center">
         {/* Main Node */}
         <div className="relative">
-          <div
-            className="relative flex items-center justify-center rounded-full bg-white border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110"
-            style={{ width: nodeSize, height: nodeSize }}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-            onClick={handleNodeClick}
-            role="button"
-            aria-label={`Family member: ${node.name}`}
-            tabIndex={0}
-          >
-            {node.gender === "male" ? (
-              <FaMale className="text-blue-500" size={nodeSize * 0.5} />
-            ) : (
-              <FaFemale className="text-pink-500" size={nodeSize * 0.5} />
-            )}
-            {node.children && node.children.length > 0 && (
-              <span
-                className="absolute -bottom-1 -right-1 bg-gray-200 rounded-full p-1"
-                onClick={toggleExpand}
-              >
-                {isExpanded ? <FaMinus size={12} /> : <FaPlus size={12} />}
-              </span>
-            )}
-          </div>
+          {renderNode(node, true)}
           {showTooltip && (
-            <div className="absolute left-full ml-2 p-2 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap z-10">
+            <div className="absolute left-full ml-2 p-2 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap z-50">
               <p>Name: {node.name}</p>
               <p>Birth Date: {dayjs(node.birth_date).format('YYYY-MM-DD')}</p>
               {node.spouses && node.spouses.length > 0 && (
@@ -69,23 +87,11 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
               style={{ width: spacing / 2 }}
             ></div>
             <div className="relative">
-              <div
-                className="relative flex items-center justify-center rounded-full bg-white border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110"
-                style={{ width: nodeSize, height: nodeSize }}
-                onClick={() => setShowDetail(true)}
-              >
-                {node.spouses[0].gender === "male" ? (
-                  <FaMale className="text-blue-500" size={nodeSize * 0.5} />
-                ) : (
-                  <FaFemale className="text-pink-500" size={nodeSize * 0.5} />
-                )}
-              </div>
+              {renderNode(node.spouses[0])}
             </div>
           </>
         )}
       </div>
-
-      <div className="text-center mt-2 text-sm font-medium">{node.name}</div>
 
       {node.children && node.children.length > 0 && isExpanded && (
         <div
@@ -103,9 +109,11 @@ const FamilyNode: React.FC<FamilyNodeProps> = ({ node, level, zoom }) => {
       )}
 
       {showDetail && (
-        <div className="relative">
-          <DetailCard member={node} onClose={() => setShowDetail(false)} visible={showDetail} />
-        </div>
+        <DetailCard 
+          member={node} 
+          onClose={() => setShowDetail(false)} 
+          visible={showDetail} 
+        />
       )}
     </div>
   );

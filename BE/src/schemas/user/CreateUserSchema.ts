@@ -3,7 +3,8 @@ import {
   DateProperty,
   StringProperty,
   GenderProperty,
-  ObjectIdArrayProperty
+  ObjectIdArrayProperty,
+  Base64ImageProperty
 } from '../common/CommonSchemaProperties';
 
 export class CreateUserSchema extends BaseSchema {
@@ -16,6 +17,7 @@ export class CreateUserSchema extends BaseSchema {
         gender: GenderProperty,
         birth_date: DateProperty,
         death_date: DateProperty,
+        avatar: Base64ImageProperty,
         spouse_ids: ObjectIdArrayProperty,
         children_ids: ObjectIdArrayProperty
       },

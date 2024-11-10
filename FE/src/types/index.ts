@@ -4,6 +4,7 @@ export interface FamilyMember {
     gender: "male" | "female";
     birth_date: string;
     death_date?: string;
+    avatar?: string;
     spouse_ids: string[];
     children_ids: string[];
     spouses?: FamilyMember[];
