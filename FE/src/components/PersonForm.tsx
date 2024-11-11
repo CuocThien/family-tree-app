@@ -214,7 +214,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
         <Form.Item
           name="birth_date"
           label={t('user.birthDate')}
-          rules={[{ required: true, message: 'Please select birth date' }]}
+          // rules={[{ required: true, message: 'Please select birth date' }]}
         >
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
@@ -241,7 +241,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
                 value={user._id}
                 disabled={_.concat(detailUser?.children_ids || [], [userId]).includes(user._id)}
               >
-                {user.name} (Born: {dayjs(user.birth_date).format('YYYY-MM-DD')})
+                {user.name} ({dayjs(user.birth_date).format('YYYY-MM-DD')})
               </Select.Option>
             ))}
           </Select>
