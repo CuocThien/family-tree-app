@@ -241,7 +241,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
                 value={user._id}
                 disabled={_.concat(detailUser?.children_ids || [], [userId]).includes(user._id)}
               >
-                {user.name} ({dayjs(user.birth_date).format('YYYY-MM-DD')})
+                {user.name} ({user.birth_date ? dayjs(user.birth_date).format('YYYY-MM-DD') : '-'})
               </Select.Option>
             ))}
           </Select>
