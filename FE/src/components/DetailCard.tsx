@@ -85,11 +85,11 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
               </ul>
             </div>
           )}
-          {detailMember?.children_ids && detailMember?.children_ids.length > 0 && (
+          {detailMember?.children_ids && detailMember?.children.length > 0 && (
             <div>
               <p className="font-semibold text-gray-700 mb-2">{t('user.form.children')}:</p>
               <ul className="list-disc list-inside">
-                {detailMember?.children_ids.map((child: any) => (
+                {detailMember?.children.map((child: any) => (
                   <li key={child._id} className="text-gray-700">
                     {child.name} ({t('user.born')}: {formatDate(child.birth_date)})
                   </li>
