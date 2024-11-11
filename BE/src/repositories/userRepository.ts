@@ -1,5 +1,7 @@
 import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository';
 import User, { IUser } from '../models/userModel';
+import { keyBy} from 'lodash';
+import { buildFamilyTree } from '../utils/functions';
 
 class UserRepository implements IUserRepository {
   async createUser(user: IUser): Promise<IUser> {
@@ -71,16 +73,16 @@ class UserRepository implements IUserRepository {
   }
 
   async getFamilyTree(): Promise<any | null> {
-    return await User.findById(process.env.ROOT_USER_ID).populate([
-      {
-        path: 'spouses',
-        populate: ['spouses', 'children']
-      },
-      {
-        path: 'children',
-        populate: ['spouses', 'children']
-      }
-    ]).lean();
+    const [rootUser, allUsers] = await Promise.all([
+      User.findById(process.env.ROOT_USER_ID).lean(),
+      User.find({ is_deleted: false }).lean()
+    ]);
+    if (!rootUser) {
+      throw new Error('Root user not found');
+    }
+    const objUser = keyBy(allUsers, '_id');
+    const familyTree = buildFamilyTree(rootUser as IUser, objUser as Record<string, IUser>);
+    return familyTree;
   }
 }
 
