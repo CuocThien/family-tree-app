@@ -6,7 +6,7 @@ export interface IUserRepository {
   updateUser(id: string, user: IUser): Promise<IUser | null>;
   deleteUser(id: string): Promise<boolean>;
   getAllUsers(params: GetAllUsersParams): Promise<{ items: IUser[], total: number }>;
-  getFamilyTree(): Promise<IUser | null>;
+  getFamilyTree(rootUserId?: string): Promise<IUser | null>;
 }
 
 export type GetAllUsersParams = {

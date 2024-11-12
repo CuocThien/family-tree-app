@@ -23,9 +23,11 @@ export const userService = {
         return response.data?.data;
     },
 
-    getFamilyTree: async () => {
-        const response = await api.get(`${ENDPOINTS.USERS}/family-tree`);
-        return response.data?.data;
+    getFamilyTree: async (rootUserId?: string) => {
+        const response = await api.get(`${ENDPOINTS.USERS}/family-tree`, {
+            params: { rootUserId }
+        });
+        return response.data;
     },
 
     deleteUser: async (id: string) => {

@@ -44,7 +44,7 @@ const ManagementPage: React.FC = () => {
 
     useEffect(() => {
         fetchUsers({
-            search_text: searchText,
+            search_text: searchText || '',
             skip: (pagination.current - 1) * pagination.pageSize,
             limit: pagination.pageSize
         });
@@ -84,9 +84,9 @@ const ManagementPage: React.FC = () => {
                         <Image
                             src={avatar}
                             alt="avatar"
-                            style={{ 
-                                width: '48px', 
-                                height: '48px', 
+                            style={{
+                                width: '48px',
+                                height: '48px',
                                 borderRadius: '50%',
                                 objectFit: 'cover'
                             }}

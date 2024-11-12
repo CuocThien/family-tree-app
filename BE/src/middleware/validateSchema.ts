@@ -1,11 +1,29 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { BaseSchema } from '../schemas/base/BaseSchema';
 
-export const validateSchema = (SchemaClass: new () => BaseSchema): RequestHandler => {
+type ValidationType = 'body' | 'query' | 'params';
+
+export const validateSchema = (SchemaClass: new () => BaseSchema, type: ValidationType = 'body'): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): any => {
     try {
       const validator = new SchemaClass();
-      const isValid = validator.validate(req.body);
+      let dataToValidate;
+
+      switch (type) {
+        case 'body':
+          dataToValidate = req.body;
+          break;
+        case 'query':
+          dataToValidate = req.query;
+          break;
+        case 'params':
+          dataToValidate = req.params;
+          break;
+        default:
+          dataToValidate = req.body;
+      }
+
+      const isValid = validator.validate(dataToValidate);
 
       if (!isValid) {
         return res.status(422).json({

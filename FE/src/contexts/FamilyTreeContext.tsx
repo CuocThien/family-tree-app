@@ -1,47 +1,42 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { userService } from '../services/userService';
-import { FamilyMember } from '../types';
+import type { FamilyMember } from '../types';
 
 interface FamilyTreeContextType {
   familyTreeData: FamilyMember | null;
-  refreshFamilyTree: () => Promise<void>;
   isLoading: boolean;
+  fetchFamilyTree: (rootUserId?: string) => Promise<void>;
 }
 
-const FamilyTreeContext = createContext<FamilyTreeContextType>({
-  familyTreeData: null,
-  refreshFamilyTree: async () => {},
-  isLoading: false
-});
+const FamilyTreeContext = createContext<FamilyTreeContextType | undefined>(undefined);
 
 export const FamilyTreeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [familyTreeData, setFamilyTreeData] = useState<FamilyMember | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const refreshFamilyTree = useCallback(async () => {
-    if (isLoading) return; // Prevent multiple simultaneous calls
-    
+  const fetchFamilyTree = async (rootUserId?: string) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const response = await userService.getFamilyTree();
-      setFamilyTreeData(response);
+      const data = await userService.getFamilyTree(rootUserId);
+      setFamilyTreeData(data?.data || {});
     } catch (error) {
       console.error('Failed to fetch family tree:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading]);
-
-  // Initial load
-  useEffect(() => {
-    refreshFamilyTree();
-  }, []);
+  };
 
   return (
-    <FamilyTreeContext.Provider value={{ familyTreeData, refreshFamilyTree, isLoading }}>
+    <FamilyTreeContext.Provider value={{ familyTreeData, isLoading, fetchFamilyTree }}>
       {children}
     </FamilyTreeContext.Provider>
   );
 };
 
-export const useFamilyTree = () => useContext(FamilyTreeContext); 
+export const useFamilyTree = () => {
+  const context = useContext(FamilyTreeContext);
+  if (!context) {
+    throw new Error('useFamilyTree must be used within a FamilyTreeProvider');
+  }
+  return context;
+}; 

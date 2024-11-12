@@ -29,7 +29,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const [uploadLoading, setUploadLoading] = useState(false);
   const [users, setUsers] = useState<FamilyMember[]>([]);
   const [detailUser, setDetailUser] = useState<FamilyMember>();
-  const { refreshFamilyTree } = useFamilyTree();
+  const { fetchFamilyTree } = useFamilyTree();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -129,7 +129,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
         message.success('Person created successfully');
       }
 
-      await refreshFamilyTree();
+      await fetchFamilyTree();
       onSubmit?.(formattedValues);
       onClose();
     } catch (error: any) {
@@ -214,7 +214,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
         <Form.Item
           name="birth_date"
           label={t('user.birthDate')}
-          // rules={[{ required: true, message: 'Please select birth date' }]}
+        // rules={[{ required: true, message: 'Please select birth date' }]}
         >
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
@@ -236,8 +236,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
             optionFilterProp="children"
           >
             {users.map(user => (
-              <Select.Option 
-                key={user._id} 
+              <Select.Option
+                key={user._id}
                 value={user._id}
                 disabled={_.concat(detailUser?.children_ids || [], [userId]).includes(user._id)}
               >
@@ -257,8 +257,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
             optionFilterProp="children"
           >
             {users.map(user => (
-              <Select.Option 
-                key={user._id} 
+              <Select.Option
+                key={user._id}
                 value={user._id}
                 disabled={_.concat(detailUser?.spouse_ids || [], [userId]).includes(user._id)}
               >

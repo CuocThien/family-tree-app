@@ -1,6 +1,6 @@
 import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository';
 import User, { IUser } from '../models/userModel';
-import { keyBy} from 'lodash';
+import { keyBy } from 'lodash';
 import { buildFamilyTree } from '../utils/functions';
 
 class UserRepository implements IUserRepository {
@@ -72,9 +72,9 @@ class UserRepository implements IUserRepository {
     return { items: users, total };
   }
 
-  async getFamilyTree(): Promise<any | null> {
+  async getFamilyTree(rootUserId?: string): Promise<any | null> {
     const [rootUser, allUsers] = await Promise.all([
-      User.findById(process.env.ROOT_USER_ID).lean(),
+      User.findById(rootUserId || process.env.ROOT_USER_ID).lean(),
       User.find({ is_deleted: false }).lean()
     ]);
     if (!rootUser) {

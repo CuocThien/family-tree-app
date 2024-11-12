@@ -11,8 +11,8 @@ export class GetAllUsersSchema extends BaseSchema {
       type: 'object',
       properties: {
         search_text: StringOptionalProperty,
-        skip: NumberPositiveOrZeroProperty,
-        limit: NumberPositiveOrZeroProperty
+        skip: StringOptionalProperty,
+        limit: StringOptionalProperty
       },
       additionalProperties: false
     };

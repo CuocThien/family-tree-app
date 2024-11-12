@@ -34,6 +34,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getFamilyTree = async (req: Request, res: Response) => {
-  const familyTree = await userService.getFamilyTree();
+  const rootUserId = req.query.rootUserId as string;
+  const familyTree = await userService.getFamilyTree(rootUserId);
   res.json(familyTree);
 };

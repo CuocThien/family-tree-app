@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { userService } from "../services/userService";
 const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => {
   const [showEditForm, setShowEditForm] = useState(false);
-  const { refreshFamilyTree } = useFamilyTree();
+  const { fetchFamilyTree } = useFamilyTree();
   const [detailMember, setDetailMember] = useState<any>(null);
   const { t } = useTranslation();
   const formatDate = (dateString: string) => {
@@ -28,7 +28,7 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
   }, [member]);
 
   const handleEditSuccess = async () => {
-    await refreshFamilyTree();
+    await fetchFamilyTree();
     setShowEditForm(false);
     onClose();
   };

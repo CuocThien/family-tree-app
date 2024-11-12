@@ -2,7 +2,7 @@ import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository
 import { IUser } from '../models/userModel';
 
 class UserService {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userRepository: IUserRepository) { }
 
   async createUser(userData: IUser): Promise<IUser> {
     return await this.userRepository.createUser(userData);
@@ -24,8 +24,8 @@ class UserService {
     return await this.userRepository.getAllUsers(params);
   }
 
-  async getFamilyTree(): Promise<any> {
-    return await this.userRepository.getFamilyTree();
+  async getFamilyTree(rootUserId?: string): Promise<any> {
+    return await this.userRepository.getFamilyTree(rootUserId);
   }
 }
 
