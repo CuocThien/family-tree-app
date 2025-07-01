@@ -13,11 +13,11 @@ const app = express();
 app.use(requestLogger);
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://family-tree.cuocthien.io.vn' : 'http://localhost:5173',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type']
 }));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: 50 * 1024 * 1024 })); // limit up to 50MB
 app.use(responseMiddleware());
 app.use('/api/users', userRoutes);
 
