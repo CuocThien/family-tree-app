@@ -62,6 +62,15 @@ const DetailCard: React.FC<DetailCardProps> = ({ member, onClose, visible }) => 
         style={{ maxWidth: '600px', minWidth: '400px' }}
       >
         <div className="space-y-4">
+          {detailMember?.avatar && (
+            <div className="flex justify-center mb-4">
+              <img
+                src={detailMember.avatar}
+                alt={detailMember.name}
+                className="w-32 h-32 rounded-full object-cover border border-gray-300"
+              />
+            </div>
+          )}
           <p className="text-gray-700">
             <span className="font-semibold">{t('user.gender')}:</span> {detailMember?.gender === 'male' ? t('user.male') : t('user.female')}
           </p>

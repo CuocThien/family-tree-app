@@ -36,6 +36,8 @@ class UserRepository implements IUserRepository {
     }
     if (user.spouse_ids.some((spouseId) => !existedUser.spouse_ids.includes(spouseId))) {
       promises.push(User.updateMany({ _id: { $in: user.spouse_ids } }, { $addToSet: { spouse_ids: id } }));
+      const spouses = await User.find({ _id: { $in: user.spouse_ids } }).lean();
+      promises.push(User.updateMany({ _id: id }, { $push: { children_ids: flatten(map(spouses, 'children_ids')) } }));
     }
     const isChangeChildren = user.children_ids.length !== existedUser.children_ids.length || !user.children_ids.every((childId) => existedUser.children_ids.includes(childId));
     if (isChangeChildren) {
