@@ -68,8 +68,14 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   const fetchUsers = async (params: GetAllUsersParams) => {
     try {
-      const response = await userService.getAllUsers(params);
-      setUsers(response.items || []);
+      let total = 100;
+      let skip = 0;
+      while (skip < total) {
+        const response = await userService.getAllUsers({ ...params, skip, limit: 100 });
+        setUsers(prev => [...prev, ...(response.items || [])]);
+        total = response.total;
+        skip += 100;
+      }
     } catch (error) {
       message.error('Failed to fetch users');
     }
