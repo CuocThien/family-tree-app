@@ -1,6 +1,6 @@
 import { GetAllUsersParams, IUserRepository } from '../interfaces/userRepository';
 import User, { IUser } from '../models/userModel';
-import { keyBy } from 'lodash';
+import { flatten, keyBy, map } from 'lodash';
 import { buildFamilyTree } from '../utils/functions';
 
 class UserRepository implements IUserRepository {
@@ -11,6 +11,8 @@ class UserRepository implements IUserRepository {
     }
     if (user.spouse_ids) {
       await User.updateMany({ _id: { $in: user.spouse_ids } }, { $push: { spouse_ids: newUser._id } });
+      const spouses = await User.find({ _id: { $in: user.spouse_ids } }).lean();
+      await User.updateMany({ _id: newUser._id }, { $push: { children_ids: flatten(map(spouses, 'children_ids')) } });
     }
     return newUser;
   }
